@@ -53,6 +53,8 @@ def test_counts_conversion() -> None:
 def test_least_squares_known_case() -> None:
     cfg = make_cfg()
     d = {"FL": 0.02, "BL": 0.04, "FR": 0.06, "BR": 0.08}
+    # With equal radii/signs/weights, q is the mean delta divided by radius:
+    # qL=((0.02+0.04)/2)/0.02=1.5, qR=((0.06+0.08)/2)/0.02=3.5
     ql, qr = solve_motor_angles(cfg, d)
     assert math.isclose(ql, 1.5, rel_tol=1e-9)
     assert math.isclose(qr, 3.5, rel_tol=1e-9)

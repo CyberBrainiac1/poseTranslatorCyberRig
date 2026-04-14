@@ -574,6 +574,7 @@ class MainWindow(QMainWindow):
                 template = codecs.decode(template_text, "unicode_escape")
             except Exception:
                 template = template_text
+                self.statusBar().showMessage("Output template escape decoding failed; using raw template text")
             payload = format_output(template, res.target_counts_left, res.target_counts_right)
             self.output.send_line(payload)
             self.live_log.appendPlainText(payload.strip())
