@@ -35,7 +35,7 @@ class SerialOutput:
     def send_line(self, payload: str) -> None:
         if self._ser is None:
             return
-        self._ser.write(payload.encode())
+        self._ser.write(payload.encode("utf-8"))
 
 
 def format_csv(left_counts: float, right_counts: float) -> str:

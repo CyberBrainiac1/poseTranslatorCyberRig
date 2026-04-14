@@ -3,6 +3,7 @@ from __future__ import annotations
 from math import radians
 from pathlib import Path
 from typing import Dict, Optional
+import codecs
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -568,7 +569,11 @@ class MainWindow(QMainWindow):
             self.live_log.appendPlainText(payload.strip())
             return
         if mode == "serial" and self.output is not None:
-            template = self.out_template.text().replace("\\n", "\n").replace("\\r", "\r")
+            template_text = self.out_template.text()
+            try:
+                template = codecs.decode(template_text, "unicode_escape")
+            except Exception:
+                template = template_text
             payload = format_output(template, res.target_counts_left, res.target_counts_right)
             self.output.send_line(payload)
             self.live_log.appendPlainText(payload.strip())
