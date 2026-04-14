@@ -12,8 +12,9 @@ except Exception:  # pragma: no cover
     serial = None
 
 
-CSV_RE = re.compile(r"^\s*([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)\s*$")
-TAG_RE = re.compile(r"P\s*=\s*([-+]?\d+(?:\.\d+)?)\s*,\s*R\s*=\s*([-+]?\d+(?:\.\d+)?)", re.IGNORECASE)
+NUM_RE = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
+CSV_RE = re.compile(rf"^\s*({NUM_RE})\s*,\s*({NUM_RE})\s*$")
+TAG_RE = re.compile(rf"P\s*=\s*({NUM_RE})\s*,\s*R\s*=\s*({NUM_RE})", re.IGNORECASE)
 
 
 def parse_pitch_roll_line(line: str) -> Optional[Tuple[float, float]]:

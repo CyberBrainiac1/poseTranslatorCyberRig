@@ -171,7 +171,8 @@ def rig_config_from_dict(data: Dict[str, object]) -> RigConfig:
         rotation_center = Vec3.from_obj(data["rotation_center"], "rotation_center")
         spool_radii = {k: float(v) for k, v in dict(data["spool_radii"]).items()}
         winding_signs = {k: int(v) for k, v in dict(data["winding_signs"]).items()}
-        cable_weights = {k: float(v) for k, v in dict(data.get("cable_weights", {name: 1.0 for name in CABLES})).items()}
+        cable_weights_data = data.get("cable_weights", {k: 1.0 for k in CABLES})
+        cable_weights = {k: float(v) for k, v in dict(cable_weights_data).items()}
         limits_data = dict(data.get("limits", {}))
         limits = Limits(
             cable_min=float(limits_data.get("cable_min", 0.05)),

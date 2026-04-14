@@ -100,6 +100,13 @@ def counts_from_angle_rad(q_rad: float, counts_per_output_rev: float) -> float:
     return q_rad / (2.0 * pi) * counts_per_output_rev
 
 
+def counts_limits_from_motor_limits(motor_min_rad: float, motor_max_rad: float, counts_per_output_rev: float) -> tuple[float, float]:
+    return (
+        counts_from_angle_rad(motor_min_rad, counts_per_output_rev),
+        counts_from_angle_rad(motor_max_rad, counts_per_output_rev),
+    )
+
+
 def solve_pose_to_cable(cfg: RigConfig, solve_input: SolveInput) -> SolveResult:
     cfg.validate()
     roll = radians(solve_input.roll_deg)
@@ -135,8 +142,12 @@ def solve_pose_to_cable(cfg: RigConfig, solve_input: SolveInput) -> SolveResult:
     if rms > lim.rms_error_max:
         warnings.append(f"RMS coupling error {rms:.6f} exceeds threshold {lim.rms_error_max:.6f}")
 
-    cl_left = float(np.clip(left_counts, lim.motor_min_rad / (2 * pi) * cpr, lim.motor_max_rad / (2 * pi) * cpr)) if (left_counts is not None and cpr) else None
-    cl_right = float(np.clip(right_counts, lim.motor_min_rad / (2 * pi) * cpr, lim.motor_max_rad / (2 * pi) * cpr)) if (right_counts is not None and cpr) else None
+    if cpr:
+        cmin, cmax = counts_limits_from_motor_limits(lim.motor_min_rad, lim.motor_max_rad, cpr)
+    else:
+        cmin, cmax = (0.0, 0.0)
+    cl_left = float(np.clip(left_counts, cmin, cmax)) if (left_counts is not None and cpr) else None
+    cl_right = float(np.clip(right_counts, cmin, cmax)) if (right_counts is not None and cpr) else None
 
     return SolveResult(
         neutral_lengths=l0,

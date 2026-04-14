@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
         cform.addRow("Center [m]", self.center_editor)
 
         self.spool_radius_editor = CableScalarEditor("Spool radii [m]", default_config().spool_radii)
-        self.winding_editor = CableScalarEditor("Winding signs (+1/-1)", default_config().winding_signs, is_int=True)
+        self.winding_editor = CableScalarEditor("Winding signs (+1/-1)", default_config().winding_signs, use_integer_editor=True)
 
         limits_box = QGroupBox("Global limits")
         lform = QFormLayout(limits_box)
@@ -572,7 +572,7 @@ class MainWindow(QMainWindow):
             template_text = self.out_template.text()
             try:
                 template = codecs.decode(template_text, "unicode_escape")
-            except Exception:
+            except UnicodeDecodeError:
                 template = template_text
                 self.statusBar().showMessage("Output template escape decoding failed; using raw template text")
             payload = format_output(template, res.target_counts_left, res.target_counts_right)

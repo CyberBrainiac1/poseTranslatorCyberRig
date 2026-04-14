@@ -50,13 +50,13 @@ class Vec3Editor(QWidget):
 
 
 class CableScalarEditor(QGroupBox):
-    def __init__(self, title: str, defaults: Dict[str, float], is_int: bool = False, parent: QWidget | None = None) -> None:
+    def __init__(self, title: str, defaults: Dict[str, float], use_integer_editor: bool = False, parent: QWidget | None = None) -> None:
         super().__init__(title, parent)
         grid = QGridLayout(self)
         self.edits: Dict[str, QLineEdit] = {}
         for i, c in enumerate(CABLES):
             grid.addWidget(QLabel(c), i, 0)
-            edit: QLineEdit = IntEdit(int(defaults.get(c, 0))) if is_int else FloatEdit(float(defaults.get(c, 0.0)))
+            edit: QLineEdit = IntEdit(int(defaults.get(c, 0))) if use_integer_editor else FloatEdit(float(defaults.get(c, 0.0)))
             self.edits[c] = edit
             grid.addWidget(edit, i, 1)
 
