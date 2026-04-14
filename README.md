@@ -71,6 +71,11 @@ Coupled spool model:
 - `dL_FR_pred = s_FR * r_FR * q_R`
 - `dL_BR_pred = s_BR * r_BR * q_R`
 
+For a reversible left/right rope loop, the front and back cable on the same motor will normally use opposite winding signs, for example:
+
+- left side: `FL=+1`, `BL=-1`
+- right side: `FR=+1`, `BR=-1`
+
 Weighted least-squares solve per side:
 
 - `q = sum(w_i * (s_i r_i) * dL_i) / sum(w_i * (s_i r_i)^2)`
@@ -109,6 +114,7 @@ Enter:
 - rotation center
 - spool radii
 - winding signs
+  For a rope loop rig, front/back on the same motor are usually opposite.
 - cable weights
 - counts per output revolution or motor CPR plus gearbox ratio
 - cable limits, motor limits, RMS threshold, and slack pay-out threshold
@@ -171,6 +177,7 @@ Live tools:
 
 - connection status
 - latest received pose
+- last formatted motor command
 - live scrolling plots
 - pause graphs
 - clear graphs
@@ -181,6 +188,8 @@ Output modes:
 - `disabled`
 - `serial`
 - `csv`
+
+For local output-path testing without hardware, set the serial port field to `loop://` and use serial output mode.
 
 Serial template example:
 
@@ -215,6 +224,8 @@ The app can output:
 - target counts
 - delta counts
 - formatted serial strings
+
+The Live FlyPT tab also shows the last formatted command and lets you resend the current solve manually.
 
 For safety, serial output uses clamped counts when motor angle limits are active.
 

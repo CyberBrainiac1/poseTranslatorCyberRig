@@ -60,7 +60,7 @@ def default_config() -> RigConfig:
         },
         rotation_center=Vec3(0.000, 0.000, -0.040),
         spool_radii={"FL": 0.026, "BL": 0.024, "FR": 0.026, "BR": 0.024},
-        winding_signs={"FL": 1, "BL": 1, "FR": 1, "BR": 1},
+        winding_signs={"FL": 1, "BL": -1, "FR": 1, "BR": -1},
         counts_per_output_rev=None,
         motor_encoder_cpr=2048,
         gearbox_ratio=40,
@@ -121,6 +121,7 @@ class MainWindow(QMainWindow):
 
         self._apply_cfg_to_inputs()
         self._zero_current_pose()
+        self._update_direction_labels()
 
     def _set_anchor_editor(self, editor: AnchorEditor, values: Dict[str, Vec3]) -> None:
         for k, vec in values.items():
@@ -132,6 +133,23 @@ class MainWindow(QMainWindow):
     def _set_scalar_editor(self, editor: CableScalarEditor, values: Dict[str, float | int]) -> None:
         for k, v in values.items():
             editor.edits[k].setText(str(v))
+
+    def _direction_text(self, front_key: str, back_key: str, motor_name: str) -> str:
+        try:
+            signs = self.winding_editor.int_values()
+        except Exception:
+            return f"{motor_name}: enter valid winding signs."
+        front_sign = signs[front_key]
+        back_sign = signs[back_key]
+        if front_sign == back_sign:
+            return f"{motor_name}: front/back signs match; positive rotation direction is ambiguous for a rope loop."
+        if front_sign > back_sign:
+            return f"{motor_name}: positive rotation pulls {front_key} down and pays out {back_key}."
+        return f"{motor_name}: positive rotation pulls {back_key} down and pays out {front_key}."
+
+    def _update_direction_labels(self) -> None:
+        self.left_direction_label.setText(self._direction_text("FL", "BL", "Left motor"))
+        self.right_direction_label.setText(self._direction_text("FR", "BR", "Right motor"))
 
     def _build_geometry_tab(self) -> QWidget:
         page = QWidget()
@@ -157,6 +175,17 @@ class MainWindow(QMainWindow):
 
         self.spool_radius_editor = CableScalarEditor("Spool radii [m]", self.cfg.spool_radii)
         self.winding_editor = CableScalarEditor("Winding signs (+1/-1)", self.cfg.winding_signs, use_integer_editor=True)
+        self.winding_editor.setToolTip("For a left/right reversible rope loop, front and back on the same motor are usually opposite signs.")
+        self.left_direction_label = QLabel()
+        self.right_direction_label = QLabel()
+        self.left_direction_label.setWordWrap(True)
+        self.right_direction_label.setWordWrap(True)
+        direction_box = QGroupBox("Positive rotation behavior")
+        direction_layout = QVBoxLayout(direction_box)
+        direction_layout.addWidget(self.left_direction_label)
+        direction_layout.addWidget(self.right_direction_label)
+        for edit in self.winding_editor.edits.values():
+            edit.textChanged.connect(self._update_direction_labels)
         self.weight_editor = CableScalarEditor("Cable solve weights", self.cfg.cable_weights)
 
         limits_box = QGroupBox("Global limits")
@@ -209,6 +238,7 @@ class MainWindow(QMainWindow):
             motor_box,
             self.spool_radius_editor,
             self.winding_editor,
+            direction_box,
             self.weight_editor,
             limits_box,
             encoder_box,
@@ -349,8 +379,9 @@ class MainWindow(QMainWindow):
         self.input_mode.addItems(["manual", "serial", "udp"])
         self.serial_port = QComboBox()
         self.serial_port.addItems(list_serial_ports() or ["(none)"])
+        self.serial_port.setEditable(True)
         self.serial_baud = IntEdit(115200)
-        self.udp_host = QLineEdit("0.0.0.0")
+        self.udp_host = QLineEdit("127.0.0.1")
         self.udp_port = IntEdit(9000)
         self.refresh_ports_btn = QPushButton("Refresh ports")
         self.refresh_ports_btn.clicked.connect(self._refresh_ports)
@@ -360,6 +391,12 @@ class MainWindow(QMainWindow):
         self.out_template = QLineEdit(r"L={left_counts},R={right_counts}\n")
         self.connection_status = QLabel("Disconnected")
         self.latest_pose_label = QLabel("Latest pose: --")
+        self.last_output_label = QLabel("Last command: --")
+        self.send_now_btn = QPushButton("Send current command")
+        self.send_now_btn.clicked.connect(self._send_current_command)
+        self.serial_port.setToolTip("Choose a COM port or type a pyserial URL such as loop:// for local testing.")
+        self.udp_host.setToolTip("FlyPT on the same PC usually targets 127.0.0.1.")
+        self.out_template.setToolTip("Template fields: {left_counts}, {right_counts}, {left_delta_counts}, {right_delta_counts}")
 
         grid.addWidget(QLabel("Input mode"), 0, 0)
         grid.addWidget(self.input_mode, 0, 1)
@@ -380,10 +417,13 @@ class MainWindow(QMainWindow):
         grid.addWidget(self.connection_status, 7, 1)
         grid.addWidget(QLabel("Latest received"), 8, 0)
         grid.addWidget(self.latest_pose_label, 8, 1, 1, 2)
+        grid.addWidget(QLabel("Last command"), 9, 0)
+        grid.addWidget(self.last_output_label, 9, 1, 1, 2)
 
         self.apply_live_btn = QPushButton("Apply Live I/O")
         self.apply_live_btn.clicked.connect(self._apply_live_io)
-        grid.addWidget(self.apply_live_btn, 9, 0, 1, 2)
+        grid.addWidget(self.apply_live_btn, 10, 0, 1, 2)
+        grid.addWidget(self.send_now_btn, 10, 2)
 
         layout.addWidget(io_box)
 
@@ -450,6 +490,7 @@ class MainWindow(QMainWindow):
         self.center_editor.set_value(self.cfg.rotation_center)
         self.spool_radius_editor.set_values(self.cfg.spool_radii)
         self.winding_editor.set_values(self.cfg.winding_signs)
+        self._update_direction_labels()
         self.weight_editor.set_values(self.cfg.cable_weights)
         self.counts_per_out_edit.set_value(self.cfg.counts_per_output_rev or 0)
         self.cpr_edit.set_value(self.cfg.motor_encoder_cpr or 0)
@@ -575,6 +616,8 @@ class MainWindow(QMainWindow):
         lines = [
             f"qL={res.q_left_rad:.6f} rad ({degrees(res.q_left_rad):.3f} deg)",
             f"qR={res.q_right_rad:.6f} rad ({degrees(res.q_right_rad):.3f} deg)",
+            self.left_direction_label.text(),
+            self.right_direction_label.text(),
             f"Left side mismatch: {res.side_mismatch_rad['left']:.6f} rad",
             f"Right side mismatch: {res.side_mismatch_rad['right']:.6f} rad",
             f"RMS error [m]: {res.rms_error:.6f}",
@@ -682,8 +725,11 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Sweep failed", str(exc))
 
     def _refresh_ports(self) -> None:
+        current = self.serial_port.currentText().strip()
         self.serial_port.clear()
         self.serial_port.addItems(list_serial_ports() or ["(none)"])
+        if current:
+            self.serial_port.setCurrentText(current)
         self.statusBar().showMessage("Serial ports refreshed")
 
     def _shutdown_live_io(self) -> None:
@@ -701,7 +747,7 @@ class MainWindow(QMainWindow):
         try:
             mode = self.input_mode.currentText()
             if mode == "serial":
-                p = self.serial_port.currentText()
+                p = self.serial_port.currentText().strip()
                 if p and p != "(none)":
                     src = SerialInput(port=p, baud=self.serial_baud.value())
                     src.open()
@@ -717,7 +763,7 @@ class MainWindow(QMainWindow):
 
             out_mode = self.output_mode.currentText()
             if out_mode == "serial":
-                p = self.serial_port.currentText()
+                p = self.serial_port.currentText().strip()
                 if p and p != "(none)":
                     self.output = SerialOutput(port=p, baud=self.serial_baud.value())
                     self.output.open()
@@ -855,9 +901,11 @@ class MainWindow(QMainWindow):
             return
         mode = self.output_mode.currentText()
         if mode == "disabled":
+            self.last_output_label.setText("Last command: output disabled")
             return
         if mode == "csv":
             payload = format_csv(left_counts, right_counts)
+            self.last_output_label.setText(f"Last command: {payload.strip()}")
             self.live_log.appendPlainText(payload.strip())
             return
         if mode == "serial" and self.output is not None:
@@ -869,7 +917,15 @@ class MainWindow(QMainWindow):
                 self.statusBar().showMessage("Output template escape decoding failed; using raw template text")
             payload = format_output(template, left_counts, right_counts, res.delta_counts_left, res.delta_counts_right)
             self.output.send_line(payload)
+            self.last_output_label.setText(f"Last command: {payload.strip()}")
             self.live_log.appendPlainText(payload.strip())
+
+    def _send_current_command(self) -> None:
+        if self.last_solve is None:
+            QMessageBox.information(self, "No solve available", "Run a solve first so there is a command to send.")
+            return
+        self._send_output_if_enabled(self.last_solve)
+        self.statusBar().showMessage("Sent current command")
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self._shutdown_live_io()

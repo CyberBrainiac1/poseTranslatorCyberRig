@@ -36,7 +36,10 @@ class SerialOutput:
     def open(self) -> None:
         if serial is None:
             raise RuntimeError("pyserial not installed")
-        self._ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
+        if "://" in self.port:
+            self._ser = serial.serial_for_url(self.port, self.baud, timeout=self.timeout)
+        else:
+            self._ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
 
     def close(self) -> None:
         if self._ser is not None:
@@ -47,6 +50,14 @@ class SerialOutput:
         if self._ser is None:
             return
         self._ser.write(payload.encode("utf-8"))
+
+    def read_line(self) -> Optional[str]:
+        if self._ser is None:
+            return None
+        raw = self._ser.readline()
+        if not raw:
+            return None
+        return raw.decode(errors="ignore").strip()
 
 
 def format_csv(left_counts: float, right_counts: float) -> str:

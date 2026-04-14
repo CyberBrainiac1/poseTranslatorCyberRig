@@ -33,7 +33,7 @@ def parse_pitch_roll_line(line: str) -> Optional[Tuple[float, float]]:
 def list_serial_ports() -> list[str]:
     if serial is None:
         return []
-    return [p.device for p in serial.tools.list_ports.comports()]
+    return ["loop://", *[p.device for p in serial.tools.list_ports.comports()]]
 
 
 @dataclass
@@ -48,7 +48,10 @@ class SerialInput:
     def open(self) -> None:
         if serial is None:
             raise RuntimeError("pyserial not installed")
-        self._ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
+        if "://" in self.port:
+            self._ser = serial.serial_for_url(self.port, self.baud, timeout=self.timeout)
+        else:
+            self._ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
 
     def close(self) -> None:
         if self._ser is not None:
