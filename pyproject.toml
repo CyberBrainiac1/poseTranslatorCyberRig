@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pose-translator-cyber-rig"
+version = "0.1.0"
+description = "Desktop engineering tool for 2DOF cable/string motion rig"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "PySide6>=6.6",
+  "matplotlib>=3.8",
+  "pyserial>=3.5"
+]
+
+[project.scripts]
+pose-translator = "app.main:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
