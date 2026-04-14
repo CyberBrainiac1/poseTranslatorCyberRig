@@ -9,8 +9,19 @@ except Exception:  # pragma: no cover
     serial = None
 
 
-def format_output(template: str, left_counts: float, right_counts: float) -> str:
-    return template.format(left_counts=int(round(left_counts)), right_counts=int(round(right_counts)))
+def format_output(
+    template: str,
+    left_counts: float,
+    right_counts: float,
+    left_delta_counts: float | None = None,
+    right_delta_counts: float | None = None,
+) -> str:
+    return template.format(
+        left_counts=int(round(left_counts)),
+        right_counts=int(round(right_counts)),
+        left_delta_counts=int(round(left_delta_counts or 0.0)),
+        right_delta_counts=int(round(right_delta_counts or 0.0)),
+    )
 
 
 @dataclass

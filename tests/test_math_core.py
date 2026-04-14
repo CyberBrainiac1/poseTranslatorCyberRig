@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import math
 
-from app.math_core import counts_from_angle_rad, ideal_cable_deltas, solve_motor_angles, solve_pose_to_cable
+from app.math_core import (
+    counts_from_angle_rad,
+    estimate_pose_from_cable_lengths,
+    ideal_cable_deltas,
+    solve_motor_angles,
+    solve_pose_to_cable,
+)
 from app.models import RigConfig, SolveInput, Vec3
 
 
@@ -58,3 +64,27 @@ def test_least_squares_known_case() -> None:
     ql, qr = solve_motor_angles(cfg, d)
     assert math.isclose(ql, 1.5, rel_tol=1e-9)
     assert math.isclose(qr, 3.5, rel_tol=1e-9)
+
+
+def test_counts_can_be_derived_from_encoder_and_gearbox() -> None:
+    cfg = make_cfg()
+    cfg.counts_per_output_rev = None
+    cfg.motor_encoder_cpr = 2048
+    cfg.gearbox_ratio = 50
+    out = solve_pose_to_cable(
+        cfg,
+        SolveInput(pitch_deg=3.0, roll_deg=0.0, current_cable_lengths={k: 0.0 for k in ["FL", "BL", "FR", "BR"]}),
+    )
+    assert out.counts_per_output_rev == 102400
+
+
+def test_inverse_solver_round_trips_pose() -> None:
+    cfg = make_cfg()
+    forward = solve_pose_to_cable(
+        cfg,
+        SolveInput(pitch_deg=4.0, roll_deg=-2.0, current_cable_lengths={k: 0.0 for k in ["FL", "BL", "FR", "BR"]}),
+    )
+    estimate = estimate_pose_from_cable_lengths(cfg, forward.target_lengths)
+    assert estimate.valid
+    assert math.isclose(estimate.pitch_deg, 4.0, abs_tol=0.05)
+    assert math.isclose(estimate.roll_deg, -2.0, abs_tol=0.05)

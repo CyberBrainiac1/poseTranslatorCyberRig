@@ -8,7 +8,7 @@ LEFT_CABLES: Tuple[str, ...] = ("FL", "BL")
 RIGHT_CABLES: Tuple[str, ...] = ("FR", "BR")
 
 
-@dataclass
+@dataclass(frozen=True)
 class Vec3:
     x: float
     y: float
@@ -36,6 +36,7 @@ class Limits:
     motor_min_rad: float = -3.14
     motor_max_rad: float = 3.14
     rms_error_max: float = 0.005
+    slack_pay_out_threshold: float = 0.01
 
 
 @dataclass
@@ -63,12 +64,20 @@ class RigConfig:
                 raise ValueError(f"Winding sign must be +1 or -1 for {name}")
             if self.cable_weights.get(name, 0.0) <= 0:
                 raise ValueError(f"Cable weight must be > 0 for {name}")
+        if self.counts_per_output_rev is not None and self.counts_per_output_rev <= 0:
+            raise ValueError("Counts per output revolution must be > 0")
+        if self.motor_encoder_cpr is not None and self.motor_encoder_cpr <= 0:
+            raise ValueError("Motor encoder CPR must be > 0")
+        if self.gearbox_ratio is not None and self.gearbox_ratio <= 0:
+            raise ValueError("Gearbox ratio must be > 0")
         if self.limits.cable_min >= self.limits.cable_max:
             raise ValueError("Cable limits invalid")
         if self.limits.motor_min_rad >= self.limits.motor_max_rad:
             raise ValueError("Motor angle limits invalid")
         if self.limits.rms_error_max < 0:
             raise ValueError("RMS threshold must be >= 0")
+        if self.limits.slack_pay_out_threshold < 0:
+            raise ValueError("Slack payout threshold must be >= 0")
 
     def effective_counts_per_output_rev(self) -> Optional[float]:
         if self.counts_per_output_rev is not None:
@@ -92,11 +101,14 @@ class SolveResult:
     neutral_lengths: Dict[str, float]
     target_lengths: Dict[str, float]
     ideal_deltas: Dict[str, float]
+    per_cable_requested_angles_rad: Dict[str, float]
     q_left_rad: float
     q_right_rad: float
     predicted_deltas: Dict[str, float]
     residuals: Dict[str, float]
+    side_mismatch_rad: Dict[str, float]
     rms_error: float
+    counts_per_output_rev: Optional[float]
     target_counts_left: Optional[float]
     target_counts_right: Optional[float]
     delta_counts_left: Optional[float]
@@ -110,8 +122,11 @@ class SolveResult:
 class PoseEstimate:
     pitch_deg: float
     roll_deg: float
+    predicted_lengths: Dict[str, float]
+    residuals: Dict[str, float]
     residual_rms: float
     valid: bool
+    warnings: List[str]
 
 
 @dataclass
@@ -128,7 +143,9 @@ class SweepSettings:
 class SweepRow:
     pitch_deg: float
     roll_deg: float
+    target_lengths: Dict[str, float]
     ideal_deltas: Dict[str, float]
+    predicted_deltas: Dict[str, float]
     q_left_rad: float
     q_right_rad: float
     residuals: Dict[str, float]
@@ -146,6 +163,8 @@ class WorkspaceAnalysis:
     cable_length_ranges: Dict[str, Tuple[float, float]]
     motor_angle_range: Dict[str, Tuple[float, float]]
     heatmap: List[List[float]]
+    pitch_values_deg: List[float]
+    roll_values_deg: List[float]
     rows: List[SweepRow]
 
 
@@ -180,6 +199,7 @@ def rig_config_from_dict(data: Dict[str, object]) -> RigConfig:
             motor_min_rad=float(limits_data.get("motor_min_rad", -3.14)),
             motor_max_rad=float(limits_data.get("motor_max_rad", 3.14)),
             rms_error_max=float(limits_data.get("rms_error_max", 0.005)),
+            slack_pay_out_threshold=float(limits_data.get("slack_pay_out_threshold", 0.01)),
         )
         cfg = RigConfig(
             moving_anchors=moving_anchors,
