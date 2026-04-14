@@ -9,7 +9,7 @@ from app.models import RigConfig, rig_config_from_dict, rig_config_to_dict
 def save_config(path: str, cfg: RigConfig) -> None:
     cfg.validate()
     payload = rig_config_to_dict(cfg)
-    Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    Path(path).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
 def load_config(path: str) -> RigConfig:
