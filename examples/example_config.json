@@ -1,0 +1,43 @@
+{
+  "moving_anchors": {
+    "FL": [0.35, 0.25, 0.0],
+    "BL": [-0.35, 0.25, 0.0],
+    "FR": [0.35, -0.25, 0.0],
+    "BR": [-0.35, -0.25, 0.0]
+  },
+  "fixed_points": {
+    "FL": [0.50, 0.50, 0.50],
+    "BL": [-0.50, 0.50, 0.50],
+    "FR": [0.50, -0.50, 0.50],
+    "BR": [-0.50, -0.50, 0.50]
+  },
+  "rotation_center": [0.0, 0.0, 0.0],
+  "spool_radii": {
+    "FL": 0.025,
+    "BL": 0.024,
+    "FR": 0.025,
+    "BR": 0.024
+  },
+  "winding_signs": {
+    "FL": 1,
+    "BL": 1,
+    "FR": 1,
+    "BR": 1
+  },
+  "counts_per_output_rev": 4096,
+  "motor_encoder_cpr": null,
+  "gearbox_ratio": null,
+  "cable_weights": {
+    "FL": 1.0,
+    "BL": 1.0,
+    "FR": 1.0,
+    "BR": 1.0
+  },
+  "limits": {
+    "cable_min": 0.05,
+    "cable_max": 2.0,
+    "motor_min_rad": -3.14,
+    "motor_max_rad": 3.14,
+    "rms_error_max": 0.005
+  }
+}
