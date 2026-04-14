@@ -20,7 +20,7 @@ def make_cfg() -> RigConfig:
         },
         rotation_center=Vec3(0.0, 0.0, 0.0),
         spool_radii={"FL": 0.02, "BL": 0.02, "FR": 0.02, "BR": 0.02},
-        winding_signs={"FL": 1, "BL": 1, "FR": 1, "BR": 1},
+        winding_signs={"FL": 1, "BL": -1, "FR": 1, "BR": -1},
         counts_per_output_rev=4096,
     )
 
@@ -36,3 +36,11 @@ def test_workspace_analysis_has_rows() -> None:
     assert len(out.rows) == 20
     assert len(out.heatmap) == 4
     assert len(out.heatmap[0]) == 5
+
+
+def test_geometry_warns_when_front_and_back_signs_match() -> None:
+    cfg = make_cfg()
+    cfg.winding_signs["BL"] = 1
+    cfg.winding_signs["BR"] = 1
+    result = check_geometry_consistency(cfg)
+    assert any("opposite signs" in warning for warning in result.warnings)

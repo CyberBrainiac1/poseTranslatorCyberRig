@@ -20,9 +20,9 @@
   },
   "winding_signs": {
     "FL": 1,
-    "BL": 1,
+    "BL": -1,
     "FR": 1,
-    "BR": 1
+    "BR": -1
   },
   "counts_per_output_rev": null,
   "motor_encoder_cpr": 2048,

@@ -46,10 +46,10 @@ def check_geometry_consistency(cfg: RigConfig) -> GeometryCheckResult:
     if right_radius_mismatch > 0.002:
         warnings.append(f"Right spool radii differ by {right_radius_mismatch:.4f} m; coupling error will increase")
 
-    if cfg.winding_signs["FL"] != cfg.winding_signs["BL"]:
-        warnings.append("Left motor winding signs differ between FL and BL")
-    if cfg.winding_signs["FR"] != cfg.winding_signs["BR"]:
-        warnings.append("Right motor winding signs differ between FR and BR")
+    if cfg.winding_signs["FL"] == cfg.winding_signs["BL"]:
+        warnings.append("Left motor front/back winding signs match; a reversible rope loop usually needs opposite signs")
+    if cfg.winding_signs["FR"] == cfg.winding_signs["BR"]:
+        warnings.append("Right motor front/back winding signs match; a reversible rope loop usually needs opposite signs")
 
     center = np.array([cfg.rotation_center.x, cfg.rotation_center.y, cfg.rotation_center.z], dtype=float)
     for key in CABLES:
