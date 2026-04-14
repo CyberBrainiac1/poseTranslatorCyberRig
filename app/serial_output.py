@@ -39,4 +39,4 @@ class SerialOutput:
 
 
 def format_csv(left_counts: float, right_counts: float) -> str:
-    return f"{int(round(left_counts))},{int(round(right_counts))}\\n"
+    return f"{int(round(left_counts))},{int(round(right_counts))}\n"

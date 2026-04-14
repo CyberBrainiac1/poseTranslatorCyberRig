@@ -291,7 +291,7 @@ class MainWindow(QMainWindow):
 
         self.output_mode = QComboBox()
         self.output_mode.addItems(["disabled", "serial", "csv"])
-        self.out_template = QLineEdit("L={left_counts},R={right_counts}\\n")
+        self.out_template = QLineEdit("L={left_counts},R={right_counts}\n")
 
         grid.addWidget(QLabel("Input mode"), 0, 0)
         grid.addWidget(self.input_mode, 0, 1)
@@ -568,6 +568,7 @@ class MainWindow(QMainWindow):
             self.live_log.appendPlainText(payload.strip())
             return
         if mode == "serial" and self.output is not None:
-            payload = format_output(self.out_template.text(), res.target_counts_left, res.target_counts_right)
+            template = self.out_template.text().replace("\\n", "\n").replace("\\r", "\r")
+            payload = format_output(template, res.target_counts_left, res.target_counts_right)
             self.output.send_line(payload)
             self.live_log.appendPlainText(payload.strip())

@@ -3,14 +3,19 @@
 A Python desktop engineering app for **custom 2DOF cable/string rigs** with two motors and coupled multi-cable spools.
 
 ## Why this exists
-FlyPT Mover can output pose commands,  cable lengths
-- 4 cable encoder counts and controller commands
+FlyPT Mover can output pose commands, but it does not natively solve your custom coupled spool cable geometry:
+
+- platform pose (pitch/roll) → cable lengths
+- 4 cable targets → 2 motor shaft angles (coupled least squares)
+- shaft angles → encoder counts and controller commands
 
 This app fills that gap for tuning and live operation.
 
 ## Features
 
-- PySide6 desktop UI with tabs: **Geometry**, **Solve**, **Analyze**, **Li estimated pitch/roll)
+- PySide6 desktop UI with tabs: **Geometry**, **Solve**, **Analyze**, **Live I/O**
+- Pose-to-cable solver (forward model)
+- Manual Cable Solver (inverse model: measured cable lengths → estimated pitch/roll)
 - Two-spool coupling least-squares solve per side
 - Predicted cable deltas, residuals, RMS mismatch reporting
 - Encoder target counts and delta counts
