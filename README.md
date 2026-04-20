@@ -59,8 +59,8 @@ Use Python 3.9 through 3.12. PyQt5 wheels may not be available yet for newer Pyt
 
 ```powershell
 cd C:\Users\emmad\Downloads\CodeP\posetranslator
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python translator.py
