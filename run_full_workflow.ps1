@@ -15,6 +15,7 @@ $outerRoot = Split-Path -Parent $repoDir
 $venvDir = Join-Path $repoDir ".venv"
 $requirementsFile = Join-Path $repoDir "requirements.txt"
 $markerFile = Join-Path $venvDir ".requirements_installed"
+$supportedPythonVersions = @("3.12", "3.11", "3.10", "3.9")
 
 function Write-Step {
     param([string]$Message)
@@ -34,12 +35,20 @@ function Resolve-FirstExistingPath {
 
 function Find-Python {
     if (Get-Command py -ErrorAction SilentlyContinue) {
-        return @{ Command = "py"; Args = @("-3") }
+        foreach ($version in $supportedPythonVersions) {
+            & cmd.exe /c "py -$version -c ""import sys; raise SystemExit(0)"" >NUL 2>NUL"
+            if ($LASTEXITCODE -eq 0) {
+                return @{ Command = "py"; Args = @("-$version") }
+            }
+        }
     }
     if (Get-Command python -ErrorAction SilentlyContinue) {
-        return @{ Command = "python"; Args = @() }
+        & python -c "import sys; raise SystemExit(0 if (3, 9) <= sys.version_info[:2] <= (3, 12) else 1)" *> $null
+        if ($LASTEXITCODE -eq 0) {
+            return @{ Command = "python"; Args = @() }
+        }
     }
-    throw "Python 3 was not found on PATH. Install Python, then rerun this launcher."
+    throw "Python 3.9 through 3.12 was not found. Install a supported Python version, then rerun this launcher."
 }
 
 function Invoke-Python {
@@ -59,6 +68,17 @@ function Invoke-VenvPython {
 }
 
 function Ensure-Venv {
+    if (Test-Path $venvPython) {
+        & $venvPython -c "import sys; raise SystemExit(0 if (3, 9) <= sys.version_info[:2] <= (3, 12) else 1)" *> $null
+        if ($LASTEXITCODE -ne 0) {
+            $resolvedVenv = (Resolve-Path $venvDir).Path
+            if ($resolvedVenv -ne (Join-Path $repoDir ".venv")) {
+                throw "Refusing to recreate unexpected virtual environment path: $resolvedVenv"
+            }
+            Write-Step "Recreating incompatible virtual environment"
+            Remove-Item -LiteralPath $venvDir -Recurse -Force
+        }
+    }
     if (-not (Test-Path $venvPython)) {
         Write-Step "Creating virtual environment"
         Invoke-Python -Arguments @("-m", "venv", $venvDir)
@@ -89,10 +109,14 @@ function Run-Tests {
         Write-Step "Skipping test run"
         return
     }
-    Write-Step "Running test suite"
+    Write-Step "Running legacy pytest suite"
     Push-Location $repoDir
     try {
         Invoke-VenvPython -Arguments @("-m", "pytest", "-q")
+        Write-Step "Running standalone translator test suite"
+        Invoke-VenvPython -Arguments @("test_suite.py")
+        Write-Step "Running cloud workflow pytest suite"
+        Invoke-VenvPython -Arguments @("-m", "pytest", "-q", "test_cloud_suite.py")
     } finally {
         Pop-Location
     }
