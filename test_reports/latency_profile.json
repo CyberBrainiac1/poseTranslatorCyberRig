@@ -1,0 +1,13 @@
+{
+  "latency_mean_ms": 4.360098010041642,
+  "latency_stdev_ms": 2.085643430217503,
+  "latency_min_ms": 0.0918769983400125,
+  "latency_max_ms": 6.864547001896426,
+  "latency_p95_ms": 6.70898499811301,
+  "latency_p99_ms": 6.8470369988062885,
+  "queue_depth_mean": 1,
+  "queue_depth_max": 1,
+  "throughput_pps": 98.22076710578078,
+  "dropped_packets": 0,
+  "queue_overruns": 0
+}

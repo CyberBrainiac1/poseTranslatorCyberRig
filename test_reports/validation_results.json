@@ -1,0 +1,178 @@
+{
+  "success": true,
+  "tests": [
+    {
+      "test": "pose_conversion_neutral",
+      "actual": [
+        0.0,
+        0.0
+      ],
+      "expected": [
+        0.0,
+        0.0
+      ],
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "pose_conversion_full_range",
+      "actual": [
+        -30.0,
+        30.0
+      ],
+      "expected": [
+        -30.0,
+        30.0
+      ],
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "displacement_kinematics_pitch_only",
+      "actual": [
+        133.04011499999996,
+        133.04011499999996
+      ],
+      "expected": [
+        133.04011499999996,
+        133.04011499999996
+      ],
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "displacement_kinematics_roll_only",
+      "actual": [
+        133.04011499999996,
+        -133.04011499999996
+      ],
+      "expected": [
+        133.04011499999996,
+        -133.04011499999996
+      ],
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "displacement_kinematics_combined",
+      "actual": [
+        159.87142944998595,
+        22.1381673514678
+      ],
+      "expected": [
+        159.87142944998595,
+        22.1381673514678
+      ],
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "spool_to_adc_neutral",
+      "actual": [
+        0.5001221001221001,
+        250.0
+      ],
+      "expected": [
+        0.5,
+        250.0
+      ],
+      "delta": 0.00012210012210012167,
+      "pass": true
+    },
+    {
+      "test": "spool_to_adc_extremes",
+      "actual": [
+        0.0,
+        500.0
+      ],
+      "expected": [
+        0.0,
+        500.0
+      ],
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "pid_proportional_only",
+      "actual": 100.0,
+      "expected": 100.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "pid_with_integral",
+      "actual": 50.0,
+      "expected": 50.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "option_A_no_reverse",
+      "actual": 0.0,
+      "expected": 0.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "deadband_enforcement",
+      "actual": 0.0,
+      "expected": 0.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "soft_stop_bottom",
+      "actual": 60.0,
+      "expected": 60.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "soft_stop_top",
+      "actual": 60.0,
+      "expected": 60.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "soft_stop_hard_cutoff",
+      "actual": 0.0,
+      "expected": 0.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "sabertooth_byte_motor1",
+      "actual": 127.0,
+      "expected": 127.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "sabertooth_byte_motor2",
+      "actual": 255.0,
+      "expected": 255.0,
+      "delta": 0.0,
+      "pass": true
+    },
+    {
+      "test": "velocity_smoothing",
+      "actual": [
+        0,
+        15,
+        40,
+        51,
+        43
+      ],
+      "expected": [
+        0,
+        15,
+        40,
+        51,
+        43
+      ],
+      "delta": 0.0,
+      "pass": true
+    }
+  ]
+}

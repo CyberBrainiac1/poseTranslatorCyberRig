@@ -1,0 +1,222 @@
+[
+  {
+    "test": "test_cloud_suite.py::test_a_parse_packet_valid[P=511,R=511-expected0]",
+    "outcome": "PASSED",
+    "duration_s": 0.00019837500076391734
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_parse_packet_valid[ P=0,R=1023 -expected1]",
+    "outcome": "PASSED",
+    "duration_s": 0.00018073400133289397
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_parse_packet_valid[P=1,R=2-expected2]",
+    "outcome": "PASSED",
+    "duration_s": 0.000327918998664245
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_parse_packet_invalid[JUNK]",
+    "outcome": "PASSED",
+    "duration_s": 0.00023902600150904618
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_parse_packet_invalid[P=,R=]",
+    "outcome": "PASSED",
+    "duration_s": 0.00014597399785998277
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_parse_packet_invalid[P=2000,R=1]",
+    "outcome": "PASSED",
+    "duration_s": 0.00013931600187788717
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_parse_packet_invalid[P=1]",
+    "outcome": "PASSED",
+    "duration_s": 0.0001358539993816521
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_raw_to_degrees[0--30]",
+    "outcome": "PASSED",
+    "duration_s": 0.0005191349991946481
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_raw_to_degrees[1023-30]",
+    "outcome": "PASSED",
+    "duration_s": 0.00018106200150214136
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_displacement_known_values",
+    "outcome": "PASSED",
+    "duration_s": 0.00043364299926906824
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_serial_mapping_exact",
+    "outcome": "PASSED",
+    "duration_s": 0.0001563260011607781
+  },
+  {
+    "test": "test_cloud_suite.py::test_a_speed_command_no_reverse_option_a",
+    "outcome": "PASSED",
+    "duration_s": 0.0017259929991269019
+  },
+  {
+    "test": "test_cloud_suite.py::test_b1_udp_transmitter_basic_launch",
+    "outcome": "PASSED",
+    "duration_s": 0.16944536300070467
+  },
+  {
+    "test": "test_cloud_suite.py::test_b2_udp_unreachable_still_reports",
+    "outcome": "PASSED",
+    "duration_s": 0.3745954840014747
+  },
+  {
+    "test": "test_cloud_suite.py::test_b3_to_b6_xiao_behaviors",
+    "outcome": "PASSED",
+    "duration_s": 0.0749563709978247
+  },
+  {
+    "test": "test_cloud_suite.py::test_b7_b9_pose_generator_scenarios[acceleration]",
+    "outcome": "PASSED",
+    "duration_s": 0.09074401299949386
+  },
+  {
+    "test": "test_cloud_suite.py::test_b7_b9_pose_generator_scenarios[lane_change_right]",
+    "outcome": "PASSED",
+    "duration_s": 0.06441581999752088
+  },
+  {
+    "test": "test_cloud_suite.py::test_b7_b9_pose_generator_scenarios[extreme_combined]",
+    "outcome": "PASSED",
+    "duration_s": 0.06940236099762842
+  },
+  {
+    "test": "test_cloud_suite.py::test_b10_b12_protocol_fuzzer_modes",
+    "outcome": "PASSED",
+    "duration_s": 0.26647328000035486
+  },
+  {
+    "test": "test_cloud_suite.py::test_b13_kinematics_validator_all_pass",
+    "outcome": "PASSED",
+    "duration_s": 0.2320132669992745
+  },
+  {
+    "test": "test_cloud_suite.py::test_b14_latency_profiler_baseline",
+    "outcome": "PASSED",
+    "duration_s": 3.1062696669978322
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[acceleration]",
+    "outcome": "PASSED",
+    "duration_s": 0.060711859001457924
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[lane_change_left]",
+    "outcome": "PASSED",
+    "duration_s": 0.06357006700272905
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[lane_change_right]",
+    "outcome": "PASSED",
+    "duration_s": 0.06335118299830356
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[hard_cornering]",
+    "outcome": "PASSED",
+    "duration_s": 0.06436969100104761
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[bumpy_road]",
+    "outcome": "PASSED",
+    "duration_s": 0.0642309729992121
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[braking_on_turn]",
+    "outcome": "PASSED",
+    "duration_s": 0.061094364999007666
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[extreme_combined]",
+    "outcome": "PASSED",
+    "duration_s": 0.06186809599967091
+  },
+  {
+    "test": "test_cloud_suite.py::test_c_i_end_to_end_scenarios[rapid_oscillation]",
+    "outcome": "PASSED",
+    "duration_s": 0.06179205000080401
+  },
+  {
+    "test": "test_cloud_suite.py::test_d1_udp_strict_validation[P=,R=2]",
+    "outcome": "PASSED",
+    "duration_s": 0.00019768399943131953
+  },
+  {
+    "test": "test_cloud_suite.py::test_d1_udp_strict_validation[P=1,R=]",
+    "outcome": "PASSED",
+    "duration_s": 0.00015436000103363767
+  },
+  {
+    "test": "test_cloud_suite.py::test_d1_udp_strict_validation[P=1]",
+    "outcome": "PASSED",
+    "duration_s": 0.00015427099788212217
+  },
+  {
+    "test": "test_cloud_suite.py::test_d1_udp_strict_validation[P=a,R=b]",
+    "outcome": "PASSED",
+    "duration_s": 0.00011991099745500833
+  },
+  {
+    "test": "test_cloud_suite.py::test_d1_udp_strict_validation[P=1,R=2,X=3]",
+    "outcome": "PASSED",
+    "duration_s": 0.00014785900202696212
+  },
+  {
+    "test": "test_cloud_suite.py::test_d2_serial_range_enforcement[cmd0]",
+    "outcome": "PASSED",
+    "duration_s": 0.00011079099931521341
+  },
+  {
+    "test": "test_cloud_suite.py::test_d2_serial_range_enforcement[cmd1]",
+    "outcome": "PASSED",
+    "duration_s": 0.00011639600052149035
+  },
+  {
+    "test": "test_cloud_suite.py::test_d2_serial_range_enforcement[cmd2]",
+    "outcome": "PASSED",
+    "duration_s": 0.0001215939992107451
+  },
+  {
+    "test": "test_cloud_suite.py::test_d2_serial_range_enforcement[cmd3]",
+    "outcome": "PASSED",
+    "duration_s": 0.00010024099901784211
+  },
+  {
+    "test": "test_cloud_suite.py::test_e1_state_transitions_simulated",
+    "outcome": "PASSED",
+    "duration_s": 0.00011658800212899223
+  },
+  {
+    "test": "test_cloud_suite.py::test_f1_f4_queue_drop_mechanism",
+    "outcome": "PASSED",
+    "duration_s": 0.0005725629998778459
+  },
+  {
+    "test": "test_cloud_suite.py::test_g2_config_corruption_recovery",
+    "outcome": "PASSED",
+    "duration_s": 0.0009525979985482991
+  },
+  {
+    "test": "test_cloud_suite.py::test_h1_h3_performance_smoke",
+    "outcome": "PASSED",
+    "duration_s": 4.081972632000543
+  },
+  {
+    "test": "test_cloud_suite.py::test_j1_generate_kinematics_reference",
+    "outcome": "PASSED",
+    "duration_s": 0.16972109699781868
+  },
+  {
+    "test": "test_cloud_suite.py::test_j2_generate_pose_sequence_library",
+    "outcome": "PASSED",
+    "duration_s": 0.44221348900100566
+  }
+]

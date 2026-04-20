@@ -1,0 +1,47 @@
+{
+  "A": {
+    "PASSED": 12,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "B": {
+    "PASSED": 9,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "C": {
+    "PASSED": 8,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "D": {
+    "PASSED": 9,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "E": {
+    "PASSED": 1,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "F": {
+    "PASSED": 1,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "G": {
+    "PASSED": 1,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "H": {
+    "PASSED": 1,
+    "FAILED": 0,
+    "SKIPPED": 0
+  },
+  "J": {
+    "PASSED": 2,
+    "FAILED": 0,
+    "SKIPPED": 0
+  }
+}

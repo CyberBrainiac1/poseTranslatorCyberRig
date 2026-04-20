@@ -1,0 +1,46 @@
+{
+  "pose_conversion_neutral": [
+    0.0,
+    0.0
+  ],
+  "pose_conversion_full_range": [
+    -30.0,
+    30.0
+  ],
+  "displacement_kinematics_pitch_only": [
+    133.04011499999996,
+    133.04011499999996
+  ],
+  "displacement_kinematics_roll_only": [
+    133.04011499999996,
+    -133.04011499999996
+  ],
+  "displacement_kinematics_combined": [
+    159.87142944998595,
+    22.1381673514678
+  ],
+  "spool_to_adc_neutral": [
+    0.5,
+    250.0
+  ],
+  "spool_to_adc_extremes": [
+    0.0,
+    500.0
+  ],
+  "pid_proportional_only": 100.0,
+  "pid_with_integral": 50.0,
+  "option_A_no_reverse": 0.0,
+  "deadband_enforcement": 0.0,
+  "soft_stop_bottom": 60.0,
+  "soft_stop_top": 60.0,
+  "soft_stop_hard_cutoff": 0.0,
+  "sabertooth_byte_motor1": 127.0,
+  "sabertooth_byte_motor2": 255.0,
+  "velocity_smoothing": [
+    0,
+    15,
+    40,
+    51,
+    43
+  ]
+}
