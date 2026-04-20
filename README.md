@@ -18,6 +18,7 @@ The rig uses Option A: one front-pull string per motor. Positive displacement pu
 - `config.json` - default runtime configuration.
 - `README.md` - setup, wiring, flashing, and FlyPT instructions.
 - `launch.bat` - Windows launcher that starts the GUI with `pythonw.exe` and triggers delayed auto-enable.
+- `test_suite.py` - standalone math, safety, and phantom UDP pipeline tests.
 
 ## Wiring
 
@@ -68,6 +69,14 @@ python translator.py
 The app launches disabled. Select the XIAO serial port, confirm the baud rate is `9600`, then press `Apply and Save`. Press `ENABLE` only when the rig is mechanically safe to move. Press `DISABLE` to immediately send Sabertooth stop bytes `64` and `192`.
 
 The app starts cleanly with no serial port connected and with FlyPT not running. The status bar shows UDP state, serial state, and the latest recoverable error.
+
+Run the standalone test suite with:
+
+```powershell
+python test_suite.py
+```
+
+The test suite imports the math directly from `translator.py`, checks the no-reverse constraints, and runs a phantom UDP loop with mocked serial output.
 
 ## Windows Launcher
 

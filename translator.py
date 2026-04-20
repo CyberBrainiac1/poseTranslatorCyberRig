@@ -18,7 +18,8 @@ import numpy as np
 import serial
 from serial.tools import list_ports
 
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QPointF, QRectF, QTimer, Qt
+from PyQt5.QtGui import QBrush, QColor, QFont, QPainter, QPen, QPolygonF
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
@@ -552,6 +553,93 @@ class MotionTranslator:
                 self.send_stop_bytes()
 
 
+class RigVisualizerCanvas(QWidget):
+    def __init__(self, title: str, attachment_angle_label: str) -> None:
+        super().__init__()
+        self.title = title
+        self.attachment_angle_label = attachment_angle_label
+        self.angle_deg = 0.0
+        self.enabled = False
+        self.setMinimumSize(280, 190)
+
+    def set_pose(self, angle_deg: float, enabled: bool) -> None:
+        self.angle_deg = float(angle_deg)
+        self.enabled = bool(enabled)
+        self.update()
+
+    def paintEvent(self, event: Any) -> None:
+        del event
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        try:
+            self._draw(painter)
+        finally:
+            painter.end()
+
+    def _draw(self, painter: QPainter) -> None:
+        width = self.width()
+        height = self.height()
+        center = QPointF(width / 2.0, height / 2.0 + 12.0)
+        platform_width = min(200.0, max(120.0, width - 80.0))
+        platform_height = 20.0
+
+        painter.fillRect(self.rect(), QColor(246, 247, 249))
+        painter.setPen(QPen(QColor(33, 37, 41), 1))
+        title_font = QFont()
+        title_font.setPointSize(11)
+        title_font.setBold(True)
+        painter.setFont(title_font)
+        painter.drawText(QRectF(0, 10, width, 24), Qt.AlignCenter, self.title)
+
+        painter.setPen(QPen(QColor(145, 153, 161), 1, Qt.DashLine))
+        painter.drawLine(QPointF(center.x(), 42), QPointF(center.x(), height - 24))
+
+        painter.setPen(QPen(QColor(70, 77, 86), 1))
+        painter.setBrush(QBrush(QColor(70, 77, 86)))
+        pivot = [
+            QPointF(center.x(), center.y() - 6),
+            QPointF(center.x() - 7, center.y() + 7),
+            QPointF(center.x() + 7, center.y() + 7),
+        ]
+        painter.drawPolygon(QPolygonF(pivot))
+
+        painter.save()
+        painter.translate(center)
+        painter.rotate(self.angle_deg)
+        platform_color = QColor(43, 108, 176) if self.enabled else QColor(135, 142, 150)
+        painter.setPen(QPen(QColor(21, 39, 56), 2))
+        painter.setBrush(QBrush(platform_color))
+        painter.drawRoundedRect(QRectF(-platform_width / 2.0, -platform_height / 2.0, platform_width, platform_height), 3, 3)
+
+        left_x = -platform_width * 0.38
+        right_x = platform_width * 0.38
+        painter.setPen(QPen(QColor(15, 23, 42), 1))
+        painter.setBrush(QBrush(QColor(37, 99, 235)))
+        painter.drawEllipse(QPointF(left_x, 0.0), 7.0, 7.0)
+        painter.setBrush(QBrush(QColor(234, 88, 12)))
+        painter.drawEllipse(QPointF(right_x, 0.0), 7.0, 7.0)
+        painter.restore()
+
+        painter.setPen(QPen(QColor(80, 88, 97), 1))
+        value_font = QFont()
+        value_font.setPointSize(9)
+        painter.setFont(value_font)
+        painter.drawText(
+            QRectF(0, height - 28, width, 20),
+            Qt.AlignCenter,
+            f"{self.attachment_angle_label}: {self.angle_deg:.2f} deg",
+        )
+
+        if not self.enabled:
+            painter.fillRect(self.rect(), QColor(128, 128, 128, 105))
+            overlay_font = QFont()
+            overlay_font.setPointSize(16)
+            overlay_font.setBold(True)
+            painter.setFont(overlay_font)
+            painter.setPen(QPen(QColor(52, 58, 64), 2))
+            painter.drawText(self.rect(), Qt.AlignCenter, "DISABLED")
+
+
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
@@ -571,6 +659,8 @@ class MainWindow(QMainWindow):
         self.status_label = QLabel()
         self.enable_button = QPushButton("ENABLE")
         self.disable_button = QPushButton("DISABLE")
+        self.side_view_canvas = RigVisualizerCanvas("SIDE VIEW - PITCH", "Pitch")
+        self.front_view_canvas = RigVisualizerCanvas("FRONT VIEW - ROLL", "Roll")
         self.autostart_trigger_consumed = False
         self.autostart_trigger_deadline = time.monotonic() + 15.0
         self._build_ui()
@@ -613,6 +703,7 @@ class MainWindow(QMainWindow):
         body.setSpacing(12)
         body.addWidget(self._build_parameter_panel(), 1)
         body.addWidget(self._build_telemetry_panel(), 1)
+        body.addWidget(self._build_visualizer_panel(), 1)
         root.addLayout(body, 1)
 
         bottom_bar = QHBoxLayout()
@@ -706,6 +797,15 @@ class MainWindow(QMainWindow):
             layout.addWidget(label, row, 0)
             layout.addWidget(value, row, 1)
             self.telemetry_labels[key] = value
+        return group
+
+    def _build_visualizer_panel(self) -> QGroupBox:
+        group = QGroupBox("Rig Visualizer")
+        layout = QVBoxLayout(group)
+        layout.setContentsMargins(8, 10, 8, 8)
+        layout.setSpacing(10)
+        layout.addWidget(self.side_view_canvas, 1)
+        layout.addWidget(self.front_view_canvas, 1)
         return group
 
     def _wire_events(self) -> None:
@@ -842,6 +942,8 @@ class MainWindow(QMainWindow):
         self.telemetry_labels["motor1_byte"].setText(str(clamp_int(telemetry.motor1_byte, 64, 127)))
         self.telemetry_labels["motor2_byte"].setText(str(clamp_int(telemetry.motor2_byte, 192, 255)))
         self.telemetry_labels["update_rate_hz"].setText(f"{telemetry.update_rate_hz:.1f}")
+        self.side_view_canvas.set_pose(telemetry.pitch_deg, telemetry.enabled)
+        self.front_view_canvas.set_pose(telemetry.roll_deg, telemetry.enabled)
 
         udp_text = "UDP connected" if telemetry.udp_connected else "UDP waiting"
         serial_text = "serial connected" if telemetry.serial_connected else "serial disconnected"
