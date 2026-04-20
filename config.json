@@ -1,0 +1,11 @@
+{
+  "udp_port": 9000,
+  "serial_port": "",
+  "baud_rate": 9600,
+  "spool_diameter_mm": 55.0,
+  "l_pivot_to_attachment_mm": 266.08023,
+  "pitch_limit_deg": 30.0,
+  "roll_limit_deg": 30.0,
+  "max_velocity_mm_s": 200.0,
+  "deadband_mm": 2.0
+}
