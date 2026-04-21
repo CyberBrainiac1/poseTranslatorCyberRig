@@ -1,0 +1,24 @@
+{
+  "ideas": [
+    "C01 FlyPT BeamNG profile and executable availability",
+    "C02 1000 randomized pose packet no-reverse safety",
+    "C03 BeamNG-like sequence captured serial output",
+    "C04 UDP burst queue drop/recovery",
+    "C05 Malformed UDP recovery",
+    "C06 Disable stop-byte enforcement",
+    "C07 loop:// serial URL smoke",
+    "C08 Autostart trigger GUI",
+    "C09 Visualizer render color/overlay",
+    "C10 Config recovery/sanitization",
+    "C11 10000-frame deterministic processing stability",
+    "C12 Strict parser whitespace rejection",
+    "C13 Alternating motor dominance under rapid roll",
+    "C14 Saturated full-forward hold safety",
+    "C15 Negative displacement always zero command",
+    "C16 Deadband boundary behavior",
+    "C17 Rolling update-rate sanity",
+    "C18 Parameter hotswap through update_params",
+    "C19 Queue starvation low-rate sender",
+    "C20 Numerical finite check over full raw grid"
+  ]
+}

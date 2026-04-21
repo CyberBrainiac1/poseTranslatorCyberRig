@@ -1,0 +1,12 @@
+{
+  "beamng_found": true,
+  "beamng_paths": [
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\BeamNG.drive\\BeamNG.drive.exe",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\BeamNG.drive\\Bin64\\BeamNG.drive.x64.exe"
+  ],
+  "flypt_profile": "C:\\Users\\emmad\\Downloads\\CodeP\\posetranslator\\New.Mover",
+  "flypt_profile_beamng_udp_configured": true,
+  "real_drive_session_executed": false,
+  "status": "REAL_BEAMNG_AVAILABLE_BUT_UNATTENDED_DRIVE_NOT_EXECUTED",
+  "reason": "BeamNG is installed and the FlyPT profile is configured for BeamNG UDP, but this environment cannot autonomously drive a live BeamNG scenario and verify real sim telemetry without interactive control. The mock BeamNG integration test exercises the translator pipeline deterministically."
+}

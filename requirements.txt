@@ -2,3 +2,4 @@ numpy==2.0.2
 PyQt5==5.15.11
 pyserial==3.5
 pytest==8.4.2
+pytest-json-report==1.5.0

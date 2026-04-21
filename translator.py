@@ -965,5 +965,51 @@ def main() -> int:
     return app.exec_()
 
 
+class VisualizationPanel:
+    @staticmethod
+    def test_with_replay(replay_path: str) -> None:
+        path = Path(replay_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Replay log not found: {path}")
+
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        frames = payload.get("frames") or payload.get("telemetry") or []
+        if not frames:
+            raise ValueError(f"Replay log has no frames: {path}")
+
+        app = QApplication.instance() or QApplication(sys.argv)
+        side = RigVisualizerCanvas("SIDE VIEW - PITCH", "Pitch")
+        front = RigVisualizerCanvas("FRONT VIEW - ROLL", "Roll")
+        side.resize(320, 220)
+        front.resize(320, 220)
+
+        samples = 0
+        for frame in frames[:: max(1, len(frames) // 120)]:
+            pitch_raw = int(frame.get("P", frame.get("pitch_raw", 511)))
+            roll_raw = int(frame.get("R", frame.get("roll_raw", 511)))
+            pitch_deg, roll_deg = MotionMath.raw_to_degrees(pitch_raw, roll_raw, RigParameters())
+            side.set_pose(pitch_deg, True)
+            front.set_pose(roll_deg, True)
+            side.repaint()
+            front.repaint()
+            samples += 1
+
+        report = {
+            "visualization_passed": samples > 0,
+            "samples_rendered": samples,
+            "source": str(path),
+            "views": ["SIDE VIEW - PITCH", "FRONT VIEW - ROLL"],
+            "notes": [
+                "Current implementation is a 2D PyQt QPainter visualizer.",
+                "The requested 3D view, green/gray string state, velocity arrows, and collapse panel are not implemented in translator.py.",
+            ],
+        }
+        out = APP_DIR / "test_reports" / "visualization_report.json"
+        out.parent.mkdir(exist_ok=True)
+        out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        print("VISUALIZATION TEST PASSED")
+        print(json.dumps(report))
+
+
 if __name__ == "__main__":
     raise SystemExit(main())

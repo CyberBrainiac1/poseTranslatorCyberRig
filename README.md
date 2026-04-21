@@ -19,6 +19,10 @@ The rig uses Option A: one front-pull string per motor. Positive displacement pu
 - `README.md` - setup, wiring, flashing, and FlyPT instructions.
 - `launch.bat` - Windows launcher that starts the GUI with `pythonw.exe` and triggers delayed auto-enable.
 - `test_suite.py` - standalone math, safety, and phantom UDP pipeline tests.
+- `deep_workflow_tests.py` - deeper app workflow tests for FlyPT/BeamNG profile checks, UDP bursts, serial output capture, and visualizer rendering.
+- `test_custom_stress_suite.py` - 20 custom stress tests runnable with pytest.
+- `mock_beamng_integration_test.py` - deterministic 120-second mock BeamNG lap through translator math.
+- `generate_final_report.py` - final validation report generator.
 
 ## Wiring
 
@@ -74,9 +78,13 @@ Run the standalone test suite with:
 
 ```powershell
 python test_suite.py
+python deep_workflow_tests.py
+python -m pytest test_custom_stress_suite.py -v
+python mock_beamng_integration_test.py
+python generate_final_report.py
 ```
 
-The test suite imports the math directly from `translator.py`, checks the no-reverse constraints, and runs a phantom UDP loop with mocked serial output.
+The test suites import the math directly from `translator.py`, check the no-reverse constraints, run phantom UDP loops with mocked serial output, verify the FlyPT BeamNG profile, and render-check the PyQt visualizer.
 
 ## Windows Launcher
 
