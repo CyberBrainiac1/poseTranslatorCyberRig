@@ -1,0 +1,59 @@
+{
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0
+  },
+  "tests": [
+    {
+      "name": "PID Test 1: Zero error at neutral",
+      "passed": true,
+      "detail": "errors=(-0.272,0.000) commands=(0,0)"
+    },
+    {
+      "name": "PID Test 2: Step response convergence",
+      "passed": true,
+      "detail": "final_error=(0.03,0.03)"
+    },
+    {
+      "name": "PID Test 3: Integral windup prevention",
+      "passed": true,
+      "detail": "integrals=(50.000,50.000)"
+    },
+    {
+      "name": "PID Test 4: Derivative spike protection",
+      "passed": true,
+      "detail": "raw=1200.0 command=127"
+    },
+    {
+      "name": "PID Test 5: Option A constraint validation",
+      "passed": true,
+      "detail": "negative targets produced stop commands and reset integral"
+    },
+    {
+      "name": "PID Test 6: Soft stop zone activation",
+      "passed": true,
+      "detail": "scaled=80.0"
+    },
+    {
+      "name": "PID Test 7: Hard stop override",
+      "passed": true,
+      "detail": "hard stop forced zero and reset integral"
+    },
+    {
+      "name": "PID Test 8: PID reset on disable/enable",
+      "passed": true,
+      "detail": "PID state reset across disable and enable"
+    },
+    {
+      "name": "PID Test 9: Asymmetric left/right response",
+      "passed": true,
+      "detail": "commands=(127,0)"
+    },
+    {
+      "name": "PID Test 10: Combined pitch and roll with PID tracking",
+      "passed": true,
+      "detail": "targets=(101.92,26.72) final_error=(0.01,0.00)"
+    }
+  ]
+}

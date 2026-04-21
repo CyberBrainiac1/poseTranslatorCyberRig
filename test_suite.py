@@ -46,6 +46,7 @@ class MockSerialTranslator(MotionTranslator):
     def open_serial(self) -> None:
         self.set_serial_status(True)
         self.set_error("")
+        self.update_pot_feedback(2048, 2048)
 
     def close_serial(self) -> None:
         self.set_serial_status(False)
@@ -57,6 +58,7 @@ class MockSerialTranslator(MotionTranslator):
         with self.telemetry_lock:
             self.telemetry.last_serial_time = time.time()
             self.telemetry.serial_connected = True
+        self.update_pot_feedback(2048, 2048)
         return True
 
 

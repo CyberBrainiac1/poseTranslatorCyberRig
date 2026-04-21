@@ -115,6 +115,8 @@ function Run-Tests {
         Invoke-VenvPython -Arguments @("-m", "pytest", "-q")
         Write-Step "Running standalone translator test suite"
         Invoke-VenvPython -Arguments @("test_suite.py")
+        Write-Step "Running PID control test suite"
+        Invoke-VenvPython -Arguments @("pid_test_suite.py")
         Write-Step "Running deep workflow test suite"
         Invoke-VenvPython -Arguments @("deep_workflow_tests.py")
         Write-Step "Running custom stress pytest suite"

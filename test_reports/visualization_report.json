@@ -7,7 +7,7 @@
     "FRONT VIEW - ROLL"
   ],
   "notes": [
-    "Current implementation is a 2D PyQt QPainter visualizer.",
-    "The requested 3D view, green/gray string state, velocity arrows, and collapse panel are not implemented in translator.py."
+    "Current implementation is a 2D PyQt QPainter visualizer with hide/show view controls and a collapsible PID graph.",
+    "A separate 3D view, green/gray string state, and velocity arrows are not implemented in translator.py."
   ]
 }

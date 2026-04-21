@@ -23,7 +23,7 @@ if "PyQt5" not in sys.modules:
     class _Dummy:
         def __init__(self,*a,**k):
             pass
-    for mod, names in [(qtcore,["QPointF","QRectF","QTimer","Qt"]),(qtgui,["QBrush","QColor","QFont","QPainter","QPen","QPolygonF"]),(qtwidgets,["QApplication","QComboBox","QDoubleSpinBox","QFileDialog","QFormLayout","QFrame","QGridLayout","QGroupBox","QHBoxLayout","QLabel","QMainWindow","QMessageBox","QPushButton","QSpinBox","QStatusBar","QVBoxLayout","QWidget"])]:
+    for mod, names in [(qtcore,["QPointF","QRectF","QTimer","Qt"]),(qtgui,["QBrush","QColor","QFont","QPainter","QPen","QPolygonF"]),(qtwidgets,["QApplication","QComboBox","QDialog","QDoubleSpinBox","QFileDialog","QFormLayout","QFrame","QGridLayout","QGroupBox","QHBoxLayout","QLabel","QMainWindow","QMessageBox","QPushButton","QSpinBox","QStatusBar","QVBoxLayout","QWidget"])]:
         for n in names:
             setattr(mod,n,_Dummy)
     sys.modules["PyQt5"] = pyqt5

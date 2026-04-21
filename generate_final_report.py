@@ -30,12 +30,14 @@ def main() -> int:
     LOGS.mkdir(exist_ok=True)
     cloud = read_json(REPORTS / "cloud_suite_results.json")
     custom = read_json(REPORTS / "custom_stress_results.json")
+    pid = read_json(REPORTS / "pid_suite_results.json")
     mock = read_json(REPORTS / "mock_beamng_report.json")
     beamng = read_json(REPORTS / "beamng_integration_report.json")
     visual = read_json(REPORTS / "visualization_report.json")
 
     cloud_passed = cloud.get("summary", {}).get("failed", 0) == 0 and not cloud.get("missing")
     custom_passed = custom.get("summary", {}).get("failed", 0) == 0 and not custom.get("missing")
+    pid_passed = pid.get("summary", {}).get("failed", 0) == 0 and not pid.get("missing")
     mock_passed = bool(mock.get("passed"))
     visual_passed = bool(visual.get("visualization_passed"))
 
@@ -59,6 +61,7 @@ def main() -> int:
         "",
         f"- Cloud suite: {'PASSED' if cloud_passed else 'FAILED'}",
         f"- Custom stress suite: {'PASSED' if custom_passed else 'FAILED'}",
+        f"- PID suite: {'PASSED' if pid_passed else 'FAILED'}",
         f"- Mock BeamNG integration: {'PASSED' if mock_passed else 'FAILED'}",
         f"- Real BeamNG integration: {'AVAILABLE BUT NOT AUTONOMOUSLY DRIVEN' if beamng.get('beamng_found') else 'SKIPPED - BEAMNG NOT FOUND'}",
         f"- Visualization replay: {'PASSED' if visual_passed else 'FAILED'}",
@@ -73,6 +76,7 @@ def main() -> int:
         "## Safety",
         "",
         "- Option A no-reverse behavior validated in math, UDP pipeline, mock BeamNG replay, and serial byte clamps.",
+        "- PID windup clamp, derivative spike clamp, soft stop, hard stop, and reset behavior validated.",
         "- Motor 1 bytes stayed in 64..127.",
         "- Motor 2 bytes stayed in 192..255.",
         "- Disable path stop bytes validated.",
@@ -96,7 +100,7 @@ def main() -> int:
     out = REPORTS / "FINAL_VALIDATION_REPORT.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     print(out.read_text(encoding="utf-8"))
-    return 0 if cloud_passed and custom_passed and mock_passed and visual_passed else 1
+    return 0 if cloud_passed and custom_passed and pid_passed and mock_passed and visual_passed else 1
 
 
 if __name__ == "__main__":

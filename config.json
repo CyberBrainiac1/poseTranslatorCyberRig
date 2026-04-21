@@ -7,5 +7,17 @@
   "pitch_limit_deg": 30.0,
   "roll_limit_deg": 30.0,
   "max_velocity_mm_s": 200.0,
-  "deadband_mm": 2.0
+  "deadband_mm": 2.0,
+  "kp": 2.0,
+  "ki": 0.05,
+  "kd": 0.1,
+  "integral_clamp": 50.0,
+  "alpha_smoothing": 0.3,
+  "soft_stop_zone_percent": 5.0,
+  "pot_min_adc_left": 0,
+  "pot_max_adc_left": 4095,
+  "pot_min_adc_right": 0,
+  "pot_max_adc_right": 4095,
+  "travel_range_mm_left": 129.59069696004138,
+  "travel_range_mm_right": 129.59069696004138
 }

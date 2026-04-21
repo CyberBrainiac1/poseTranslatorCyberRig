@@ -57,6 +57,7 @@ class CaptureTranslator(MotionTranslator):
     def open_serial(self) -> None:
         self.set_serial_status(True)
         self.set_error("")
+        self.update_pot_feedback(2048, 2048)
 
     def close_serial(self) -> None:
         self.set_serial_status(False)
@@ -68,6 +69,7 @@ class CaptureTranslator(MotionTranslator):
         with self.telemetry_lock:
             self.telemetry.last_serial_time = time.time()
             self.telemetry.serial_connected = True
+        self.update_pot_feedback(2048, 2048)
         return True
 
 
@@ -203,10 +205,10 @@ def test_05_malformed_udp_recovery() -> str:
             sender.sendto(payload, ("127.0.0.1", params.udp_port))
             time.sleep(0.03)
         sender.sendto(b"P=1023,R=511\r\n", ("127.0.0.1", params.udp_port))
-        assert wait_for_condition(lambda: translator.get_telemetry().motor1_byte == 127, 3.0), translator.get_telemetry()
+        assert wait_for_condition(lambda: translator.get_telemetry().motor1_byte > 64, 3.0), translator.get_telemetry()
         latest = translator.get_telemetry()
-        assert latest.motor1_byte == 127 and latest.motor2_byte == 255, latest
-        return "malformed packets did not prevent later valid full-pitch output"
+        assert latest.motor1_byte > 64 and latest.motor2_byte > 192, latest
+        return "malformed packets did not prevent later valid PID output"
     finally:
         sender.close()
         translator.shutdown()
@@ -221,7 +223,7 @@ def test_06_disable_writes_stop_bytes() -> str:
         sender.sendto(b"P=511,R=511\r\n", ("127.0.0.1", params.udp_port))
         assert wait_for_condition(lambda: translator.get_telemetry().last_packet_time > 0.0, 3.0), translator.get_telemetry()
         sender.sendto(b"P=1023,R=511\r\n", ("127.0.0.1", params.udp_port))
-        assert wait_for_condition(lambda: any(pair == (127, 255) for pair in translator.writes), 3.0), translator.writes[-5:]
+        assert wait_for_condition(lambda: any(pair[0] > 64 and pair[1] > 192 for pair in translator.writes), 3.0), translator.writes[-5:]
         translator.disable()
         assert translator.writes[-1] == (64, 192), translator.writes[-5:]
         stopped = translator.get_telemetry()
@@ -242,11 +244,11 @@ def test_07_loop_serial_url_smoke() -> str:
         assert wait_for_condition(lambda: translator.get_telemetry().last_packet_time > 0.0, 3.0), translator.get_telemetry()
         sender.sendto(b"P=1023,R=511\r\n", ("127.0.0.1", params.udp_port))
         assert wait_for_condition(lambda: translator.get_telemetry().serial_connected, 3.0), translator.get_telemetry()
-        assert wait_for_condition(lambda: translator.get_telemetry().motor1_byte == 127, 3.0), translator.get_telemetry()
+        assert wait_for_condition(lambda: translator.get_telemetry().last_serial_time > 0.0, 3.0), translator.get_telemetry()
         latest = translator.get_telemetry()
-        assert latest.motor1_byte == 127 and latest.motor2_byte == 255, latest
+        assert latest.motor1_byte == 64 and latest.motor2_byte == 192, latest
         assert latest.last_serial_time > 0.0, latest
-        return f"loop:// serial accepted bytes=({latest.motor1_byte},{latest.motor2_byte})"
+        return f"loop:// serial held stopped without pot feedback=({latest.motor1_byte},{latest.motor2_byte})"
     finally:
         sender.close()
         translator.shutdown()

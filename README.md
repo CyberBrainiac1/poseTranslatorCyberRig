@@ -12,13 +12,14 @@ The rig uses Option A: one front-pull string per motor. Positive displacement pu
 
 ## Files
 
-- `translator.py` - PyQt5 GUI, UDP receiver, kinematics, safety clamps, and serial output.
+- `translator.py` - PyQt5 GUI, UDP receiver, kinematics, PID control loop, calibration, safety clamps, and serial output.
 - `xiao_sabertooth.ino` - Arduino sketch for the Seeed Studio XIAO.
 - `requirements.txt` - pinned Python dependencies.
 - `config.json` - default runtime configuration.
 - `README.md` - setup, wiring, flashing, and FlyPT instructions.
 - `launch.bat` - Windows launcher that starts the GUI with `pythonw.exe` and triggers delayed auto-enable.
 - `test_suite.py` - standalone math, safety, and phantom UDP pipeline tests.
+- `pid_test_suite.py` - closed-loop PID, soft stop, hard stop, and reset validation tests.
 - `deep_workflow_tests.py` - deeper app workflow tests for FlyPT/BeamNG profile checks, UDP bursts, serial output capture, and visualizer rendering.
 - `test_custom_stress_suite.py` - 20 custom stress tests runnable with pytest.
 - `mock_beamng_integration_test.py` - deterministic 120-second mock BeamNG lap through translator math.
@@ -36,6 +37,10 @@ PC USB port
 Seeed Studio XIAO
   GND ------------------------ Sabertooth 0V / signal ground
   D6  ------------------------ Sabertooth S1
+  A0  ------------------------ Left motor 10k pot wiper
+  A1  ------------------------ Right motor 10k pot wiper
+  3V3 ------------------------ Pot high side
+  GND ------------------------ Pot low side
   5V or 3V3 is NOT connected -- Sabertooth is powered from motor battery/BEC side
 
 Sabertooth 2x32
@@ -56,6 +61,7 @@ Input: S1 receives serial bytes from XIAO D6
 ```
 
 Keep the motor power wiring sized and fused for the actual motor current. Tie XIAO ground and Sabertooth signal ground together.
+Wire each potentiometer mechanically to the matching motor shaft. The default firmware mapping is left pot on `A0` and right pot on `A1`.
 
 ## Python Setup
 
@@ -78,6 +84,7 @@ Run the standalone test suite with:
 
 ```powershell
 python test_suite.py
+python pid_test_suite.py
 python deep_workflow_tests.py
 python -m pytest test_custom_stress_suite.py -v
 python mock_beamng_integration_test.py
@@ -151,9 +158,66 @@ Pitch Limit deg: 30
 Roll Limit deg: 30
 Max Velocity mm/s: 200
 Deadband mm: 2
+Kp: 2.0
+Ki: 0.05
+Kd: 0.1
+Integral Clamp: 50
+Alpha Smoothing: 0.3
+Soft Stop Zone percent: 5
+Left Pot ADC Min/Max: 0 / 4095
+Right Pot ADC Min/Max: 0 / 4095
+Left/Right Travel Range mm: computed during calibration
 ```
 
-`Spool Diameter mm` is saved for rig documentation and future calibration. The current supplied kinematics use the pre-solved `L * sin(angle)` displacement math directly.
+`Spool Diameter mm` is used during calibration to convert usable pot rotation into string travel. The target displacement still comes from the supplied pre-solved `L * sin(angle)` kinematics.
+
+## Calibration Procedure
+
+Calibration is disabled while the rig is enabled. Press `DISABLE` first, then press `Calibrate`.
+
+```text
+1. Confirm the XIAO is connected and sending live ADC values.
+2. Move the rig to MINIMUM position: strings fully extended, frame at lowest travel.
+3. Click Mark Minimum.
+4. Move the rig to MAXIMUM position: strings pulled, frame at highest travel.
+5. Click Mark Maximum.
+6. Click Done.
+```
+
+The app validates that each side has more than `100` ADC counts of range. It then computes per-side travel:
+
+```text
+travel_range_rad = (adc_max - adc_min) / 4095.0 * (270 deg in radians)
+travel_range_mm = travel_range_rad * (spool_diameter_mm / 2.0)
+```
+
+The PC saves calibration to `config.json`, sends `CAL=L_MIN:xxx,L_MAX:xxx,R_MIN:xxx,R_MAX:xxx` to the XIAO, and waits for `CAL_OK`. The XIAO stores the same calibration in EEPROM with magic byte `0xAB`.
+
+## PID Tuning Guide
+
+Recommended starting point:
+
+```text
+Kp = 2.0
+Ki = 0.05
+Kd = 0.1
+Alpha = 0.3
+```
+
+Tuning symptoms:
+
+```text
+Kp too low: rig responds sluggishly, takes long to reach target
+Kp too high: rig overshoots target, oscillates around it
+Ki too low: rig never quite reaches target, steady state error remains
+Ki too high: rig oscillates, integral winds up, unstable
+Kd too low: rig overshoots on fast moves
+Kd too high: rig is jerky, amplifies noise
+Alpha too low: rig feels sluggish and damped, slow reaction
+Alpha too high: rig is jerky, feels every noise spike
+```
+
+Tune `Kp` first until response is fast without oscillation. Add `Ki` until steady state error disappears. Add `Kd` to reduce overshoot. Finally tune `Alpha` to taste.
 
 ## FlyPT Mover Setup
 
@@ -184,8 +248,9 @@ The `Open FlyPT Mover` button looks in the same directory as `translator.py` for
 3. Open `xiao_sabertooth.ino`.
 4. Select the XIAO board and port.
 5. Confirm the sketch uses `#define SABERTOOTH_TX_PIN D6`.
-6. Upload the sketch.
-7. After upload, reconnect the XIAO if the COM port changes.
+6. Confirm the sketch uses `#define POT_LEFT_PIN A0` and `#define POT_RIGHT_PIN A1`.
+7. Upload the sketch.
+8. After upload, reconnect the XIAO if the COM port changes.
 
 The PC sends two raw bytes per packet over USB serial:
 
@@ -207,6 +272,14 @@ Motor 1 stop: 64
 Motor 2 stop: 192
 ```
 
+The XIAO sends pot feedback to the PC continuously:
+
+```text
+L=<left_adc>,R=<right_adc>
+```
+
+If either pot reads `0` or `4095` continuously for more than `200 ms`, the XIAO sends `ERR=POT_L` or `ERR=POT_R`, sends stop bytes, and holds stopped until the PC is manually re-enabled.
+
 ## XIAO Watchdog and LED
 
 The XIAO sends stop bytes as its first Sabertooth action during setup.
@@ -214,8 +287,9 @@ The XIAO sends stop bytes as its first Sabertooth action during setup.
 Runtime behavior:
 
 ```text
-Valid packet received: forward clamped bytes to Sabertooth, reset watchdog
+Valid packet received: apply byte clamps and stop-zone scaling, forward to Sabertooth, reset watchdog
 No packet for 500 ms: send stop bytes, enter watchdog state
+Pot loss for 200 ms: send stop bytes, report pot error, hold stopped
 ```
 
 LED behavior:
@@ -239,6 +313,25 @@ right_disp = -L * sin(roll_rad) + L * sin(pitch_rad)
 ```
 
 Positive displacement means the string must shorten, so the motor may pull. Negative displacement means the platform must return by rider weight, so command is forced to zero.
+
+The PC PID loop runs independently for left and right:
+
+```text
+error = target_disp - measured_disp
+raw_output = Kp * error + Ki * integral + Kd * derivative
+```
+
+After PID, Option A is applied before smoothing and stop-zone scaling:
+
+```text
+if target_disp > deadband:
+  command = clamp(raw_output, 0, 127)
+else:
+  command = 0
+  integral = 0
+```
+
+The PC also holds both commands at stop until fresh XIAO pot feedback has been received.
 
 Sabertooth byte mapping:
 

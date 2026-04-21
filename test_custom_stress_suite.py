@@ -127,7 +127,7 @@ def test_c13_alternating_left_right_dominance() -> None:
 
 def test_c14_saturated_full_forward_hold() -> None:
     first = process_packet_with_primed_state("P=1023,R=511")
-    assert first.left_command == 127 and first.right_command == 127
+    assert first.left_command > 0 and first.right_command > 0
     params = RigParameters()
     state = ProcessorState()
     for _ in range(500):
