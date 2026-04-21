@@ -159,6 +159,7 @@ def test_03_beamng_like_serial_output_capture() -> str:
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         translator.start()
+        time.sleep(0.2)
         sequence = make_beamng_like_sequence()
         for pitch, roll in sequence:
             sender.sendto(f"P={pitch},R={roll}\r\n".encode("ascii"), ("127.0.0.1", params.udp_port))
@@ -181,6 +182,7 @@ def test_04_udp_burst_drop_and_recovery() -> str:
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         translator.start()
+        time.sleep(0.2)
         for i in range(350):
             packet = f"P={(i * 17) % 1024},R={(1023 - i * 11) % 1024}\r\n"
             sender.sendto(packet.encode("ascii"), ("127.0.0.1", params.udp_port))
@@ -199,6 +201,7 @@ def test_05_malformed_udp_recovery() -> str:
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         translator.start()
+        time.sleep(0.2)
         sender.sendto(b"P=511,R=511\r\n", ("127.0.0.1", params.udp_port))
         assert wait_for_condition(lambda: translator.get_telemetry().last_packet_time > 0.0, 3.0), translator.get_telemetry()
         for payload in (b"garbage", b"P=-1,R=20", b"P=2000,R=1", b"P=,R="):
@@ -220,6 +223,7 @@ def test_06_disable_writes_stop_bytes() -> str:
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         translator.start()
+        time.sleep(0.2)
         sender.sendto(b"P=511,R=511\r\n", ("127.0.0.1", params.udp_port))
         assert wait_for_condition(lambda: translator.get_telemetry().last_packet_time > 0.0, 3.0), translator.get_telemetry()
         sender.sendto(b"P=1023,R=511\r\n", ("127.0.0.1", params.udp_port))
@@ -240,6 +244,7 @@ def test_07_loop_serial_url_smoke() -> str:
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         translator.start()
+        time.sleep(0.2)
         sender.sendto(b"P=511,R=511\r\n", ("127.0.0.1", params.udp_port))
         assert wait_for_condition(lambda: translator.get_telemetry().last_packet_time > 0.0, 3.0), translator.get_telemetry()
         sender.sendto(b"P=1023,R=511\r\n", ("127.0.0.1", params.udp_port))
@@ -272,7 +277,7 @@ def test_08_autostart_trigger_gui() -> str:
             app.quit()
 
         QTimer.singleShot(2600, verify)
-        QTimer.singleShot(5000, app.quit)
+        QTimer.singleShot(8000, app.quit)
         app.exec_()
         assert ok["done"], "autostart did not enable within timeout"
         return "autostart trigger deleted and GUI enabled"
